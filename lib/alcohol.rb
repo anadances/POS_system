@@ -1,0 +1,2 @@
+class Alcohol < Product
+end
