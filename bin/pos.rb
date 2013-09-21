@@ -4,16 +4,17 @@ require 'rake'
 require 'rspec'
 require 'active_record_migrations'
 require 'shoulda-matchers'
+require 'pry'
 
-require './lib/purchase'
-require './lib/sale'
-require './lib/product'
-require './lib/cashier'
-require './lib/grocery'
-require './lib/alcohol'
-require './lib/household'
+require '../lib/purchase'
+require '../lib/sale'
+require '../lib/product'
+require '../lib/cashier'
+require '../lib/grocery'
+require '../lib/alcohol'
+require '../lib/household'
 
-database_configurations = YAML::load(File.open('./db/config.yml'))
+database_configurations = YAML::load(File.open('../db/config.yml'))
 development_configuration = database_configurations["development"]
 ActiveRecord::Base.establish_connection(development_configuration)
 
@@ -166,16 +167,31 @@ end
 
 
 def new_sale(cashier)
- Product.all.each_with_index {|product, index| puts "#{index + 1}. #{product.name}"}
-  sale = Sale.create
-  puts "Choose a product to ring up:"
-  item_number = gets.chomp.to_i
-  product = Product.all[item_number - 1]
-  puts "How many #{product.name}?"
-  item_amount = gets.chomp.to_i
-  purchase = Purchase.create(product_id: product.id, quantity: item_amount, sale_id: sale.id)
-  puts "You purchased #{purchase.quantity} #{product.name}s"
+  sale = Sale.create(cashier_id: cashier.id)
+  choice = nil
+  until choice == 'c'
+    Product.all.each_with_index {|product, index| puts "#{index + 1}. #{product.name}"}
+    puts "Choose a product to ring up:"
+    item_number = gets.chomp.to_i
+    product = Product.all[item_number - 1]
+    puts "How many #{product.name}?"
+    item_amount = gets.chomp.to_i
+    purchase = Purchase.create(product_id: product.id, quantity: item_amount, sale_id: sale.id)
+    puts "You purchased #{purchase.quantity} #{product.name}s"
+    puts "[A]dd another product or [c]omplete sale."
+    choice = gets.chomp
+  end
+
+  # total = sale.purchases
+  # total
+  #     binding.pry
+  # sale.purchases.reduce do |purchase|
+
+  #   purchase.products.price * purchase.quantity
+  # end
+  # puts "#{total}" 
 end
+
   
 
 # def new_sale
